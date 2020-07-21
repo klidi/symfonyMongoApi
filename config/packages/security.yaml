@@ -1,0 +1,31 @@
+security:
+  encoders:
+    App\Document\User:
+      algorithm: argon2i
+  providers:
+    my_mongo_provider:
+      mongodb: {class: App\Document\User, property: username}
+  firewalls:
+    login:
+      pattern:  ^/login
+      stateless: true
+      anonymous: true
+      json_login:
+        check_path: /login_check
+        success_handler: lexik_jwt_authentication.handler.authentication_success
+        failure_handler: lexik_jwt_authentication.handler.authentication_failure
+    register:
+      pattern:  ^/register
+      stateless: true
+      anonymous: true
+    api:
+      pattern:  ^/api
+      stateless: true
+      anonymous: true
+      provider: my_mongo_provider
+      guard:
+        authenticators:
+        - lexik_jwt_authentication.jwt_token_authenticator
+  access_control:
+    - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
